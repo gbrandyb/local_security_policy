@@ -26,7 +26,8 @@ class SecurityPolicy
     def local_accounts
         ary = []
         ["useraccount","group"].each do |lu|
-            wmic([lu, 'where', "(domain=\"#{ENV["COMPUTERNAME"]}\")", 'get', 'name,sid', '/format:csv']).split("\n").each do |line|
+            # wmic([lu, 'where', "(domain=\"#{ENV["COMPUTERNAME"]}\")", 'get', 'name,sid', '/format:csv']).split("\n").each do |line|
+            wmic([lu, 'where', "(domain=\"EC2AMAZ-SN77P31\")", 'get', 'name,sid', '/format:csv']).split("\n").each do |line|
                 next if line =~ /Node/
                 if line.include? ","
                     ary << line.strip.split(",")
