@@ -1,4 +1,5 @@
 #encoding: UTF-8
+=begin
 require 'puppet/provider'
 
 class SecurityPolicy
@@ -925,3 +926,4 @@ class SecurityPolicy
         }
     end
 end
+=end
