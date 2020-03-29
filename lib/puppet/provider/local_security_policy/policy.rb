@@ -47,6 +47,7 @@ Puppet::Type.type(:local_security_policy).provide(:policy) do
       File.open inffile, 'r:IBM437' do |file|
         # remove /r/n and remove the BOM
         inffile_content = file.read.force_encoding('utf-16le').encode('utf-8', :universal_newline => true).gsub("\xEF\xBB\xBF", '')
+        File.write('c:\\windows\\temp\\secedit-processed.inf',inffile_content)
         @file_object ||= PuppetX::IniFile.new(:content => inffile_content)
       end
     end
