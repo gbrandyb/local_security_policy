@@ -496,13 +496,18 @@ class IniFile
         end
       end
 
+      puts "\tcontinuation: #{continuation}"
       if continuation
         self.value << $/ if leading_quote?
+        puts "\tvalue: #{self.value}"  
+        puts "\tproperty: #{self.property}"
       else
+        puts "\tvalue: #{self.value}"
+        puts "\tproperty: #{self.property}"
         process_property
       end
-      puts "\tcontinuation: #{continuation}"
-      puts "\tvalue: #{self.value}"
+      
+      
       continuation
     end
 
