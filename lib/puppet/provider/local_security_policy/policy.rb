@@ -44,13 +44,21 @@ Puppet::Type.type(:local_security_policy).provide(:policy) do
     inffile ||= temp_file
     unless @file_object
       export_policy_settings(inffile)
-      File.open inffile, 'r:IBM437' do |file|
+      #File.open inffile, 'r:IBM437' do |file|
+      File.open inffile, 'rb:UTF-16LE' do |file|
         # remove /r/n and remove the BOM
-        inffile_content = file.read.force_encoding('utf-16le').encode('utf-8', :universal_newline => true).gsub("\xEF\xBB\xBF", '')
-        # File.write('c:\\windows\\temp\\secedit-processed.inf',inffile_content)
-        inftestfile = File.read('c:\\windows\\temp\\secedit-processed-withquotes.inf')
-        # @file_object ||= PuppetX::IniFile.new(:content => inffile_content)
-        @file_object ||= PuppetX::IniFile.new(:content => inftestfile)
+        
+        
+        startregex = Regexp.new('LegalNoticeText=7,'.encode('UTF-16LE'))
+        endregex = Regexp.new('\'\r'.encode('UTF-16LE'))
+        inffile_content = file.read
+        gsubcontent = inffile_content.gsub(startregex,'LegalNoticeText="7,'.encode('UTF-16LE')).gsub(endregex,"'\"\r".encode('UTF-16LE'))
+        #wfile.write(gsubcontent)
+        inffile_content = gsubcontent.encode('utf-8', :universal_newline => true).gsub("\xEF\xBB\xBF", '')
+        File.write('c:\\windows\\temp\\secedit-processed.inf',inffile_content)
+        # inftestfile = File.read('c:\\windows\\temp\\secedit-processed-withquotes.inf')
+        @file_object ||= PuppetX::IniFile.new(:content => inffile_content)
+        #@file_object ||= PuppetX::IniFile.new(:content => inftestfile)
       end
     end
     @file_object
@@ -180,8 +188,8 @@ Puppet::Type.type(:local_security_policy).provide(:policy) do
       secedit(['/configure', '/db', sdbout, '/cfg',infout])
     ensure
       #FileUtils.rm_f(temp_file)
-      #FileUtils.rm_f(infout)
-      #FileUtils.rm_f(sdbout)
+      FileUtils.rm_f(infout)
+      FileUtils.rm_f(sdbout)
       #FileUtils.rm_f(logout)
     end
   end
