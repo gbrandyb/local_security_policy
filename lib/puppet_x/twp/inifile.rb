@@ -453,57 +453,57 @@ class IniFile
     # Returns `fase` if the string contained a complete value.
     def parse_value( string )
       continuation = false
-      puts "arg: #{string}"
+      # puts "arg: #{string}"
       # if our value starts with a double quote, then we are in a
       # line continuation situation
       if leading_quote?
-        puts "\tleadingquote: true"
+        # puts "\tleadingquote: true"
         # check for a closing quote at the end of the string
         if string =~ @close_quote
           value << $1
-          puts "\tclosequote: true"
+          # puts "\tclosequote: true"
         # otherwise just append the string to the value
         else
           value << string
           continuation = true
-          puts "\tclosequote: false"
+          # puts "\tclosequote: false"
         end
 
       # not currently processing a continuation line
       else
-        puts "\tleadingquote: false"
+        # puts "\tleadingquote: false"
         case string
         when @full_quote
           self.value = $1
-          puts "\tfullquote: true"
+          # puts "\tfullquote: true"
 
         when @open_quote
           self.value = $1
           continuation = true
-          puts "\topenquote: true"
+          # puts "\topenquote: true"
 
         when @trailing_slash
           self.value ?  self.value << $1 : self.value = $1
           continuation = true
-          puts "\ttrailingslash: true"
+          # puts "\ttrailingslash: true"
 
         when @normal_value
           self.value ?  self.value << $1 : self.value = $1
-          puts "\tnormalvalue: true"
+          # puts "\tnormalvalue: true"
 
         else
           error
         end
       end
 
-      puts "\tcontinuation: #{continuation}"
+      # puts "\tcontinuation: #{continuation}"
       if continuation
         self.value << $/ if leading_quote?
-        puts "\tvalue: #{self.value}"  
-        puts "\tproperty: #{self.property}"
+        # puts "\tvalue: #{self.value}"  
+        # puts "\tproperty: #{self.property}"
       else
-        puts "\tvalue: #{self.value}"
-        puts "\tproperty: #{self.property}"
+        # puts "\tvalue: #{self.value}"
+        # puts "\tproperty: #{self.property}"
         process_property
       end
       
