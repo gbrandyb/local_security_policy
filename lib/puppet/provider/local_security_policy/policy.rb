@@ -44,21 +44,26 @@ Puppet::Type.type(:local_security_policy).provide(:policy) do
     inffile ||= temp_file
     unless @file_object
       export_policy_settings(inffile)
+
+      # There was an issue with handling multiline registry key strings that contained
+      # line feeds (\n). They would cause the ini parser to throw an error.  Need to enclose 
+      # the value in double quotes before applying universal newlines in order to flag the parser
+      # that it needs to process it as a multiline value.
+
       #File.open inffile, 'r:IBM437' do |file|
       File.open inffile, 'rb:UTF-16LE' do |file|
-        # remove /r/n and remove the BOM
         
+        # encode as UTF-8 and remove the BOM
+        inffile_content = file.read.encode('utf-8').gsub("\xEF\xBB\xBF")
+        # the =7 is the registry type for multiline strings.  all the culprit strings we've found are wrapped in
+        # single quotes from secedit for some reason. Need to remove those quotes and wrap the entire value (including leading 7)
+        # in double quotes
+        multistr_regex = Regexp.new('=7,\'(.*?)\'(\r\n)', Regexp::MULTILINE)
+        inffile_content.gsub(multstr_regex, '="7,\1"\2')
+        inffile_content.encode('utf-8', :universal_newline => true)
         
-        startregex = Regexp.new('LegalNoticeText=7,'.encode('UTF-16LE'))
-        endregex = Regexp.new('\'\r'.encode('UTF-16LE'))
-        inffile_content = file.read
-        gsubcontent = inffile_content.gsub(startregex,'LegalNoticeText="7,'.encode('UTF-16LE')).gsub(endregex,"'\"\r".encode('UTF-16LE'))
-        #wfile.write(gsubcontent)
-        inffile_content = gsubcontent.encode('utf-8', :universal_newline => true).gsub("\xEF\xBB\xBF", '')
-        File.write('c:\\windows\\temp\\secedit-processed.inf',inffile_content)
-        # inftestfile = File.read('c:\\windows\\temp\\secedit-processed-withquotes.inf')
+        File.write('c:\\windows\\temp\\secedit-processed.inf',inffile_content) # debug
         @file_object ||= PuppetX::IniFile.new(:content => inffile_content)
-        #@file_object ||= PuppetX::IniFile.new(:content => inftestfile)
       end
     end
     @file_object
