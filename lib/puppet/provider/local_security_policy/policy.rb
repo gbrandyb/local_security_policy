@@ -62,7 +62,7 @@ Puppet::Type.type(:local_security_policy).provide(:policy) do
         inffile_content = temp_content.gsub(multistr_regex, '="7,\1"\2')
         #inffile_content.encode('utf-8', :universal_newline => true)
         
-        File.write('c:\\windows\\temp\\secedit-processed.inf',inffile_content) # debug
+        # File.write('c:\\windows\\temp\\secedit-processed.inf',inffile_content, :mode 'wb:UTF-8') # debug
         @file_object ||= PuppetX::IniFile.new(:content => inffile_content)
       end
     end
@@ -192,7 +192,7 @@ Puppet::Type.type(:local_security_policy).provide(:policy) do
       inf.write(:filename => infout, :encoding => 'utf-8')
       secedit(['/configure', '/db', sdbout, '/cfg',infout])
     ensure
-      #FileUtils.rm_f(temp_file)
+      FileUtils.rm_f(temp_file)
       FileUtils.rm_f(infout)
       FileUtils.rm_f(sdbout)
       #FileUtils.rm_f(logout)
