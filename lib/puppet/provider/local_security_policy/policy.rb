@@ -62,7 +62,7 @@ Puppet::Type.type(:local_security_policy).provide(:policy) do
         inffile_content = temp_content.gsub(multistr_regex, '="7,\1"\2')
         #inffile_content.encode('utf-8', :universal_newline => true)
         
-        File.write('c:\\windows\\temp\\secedit-processed.inf',inffile_content, :mode 'wb:UTF-8') # debug
+        File.write('c:\\windows\\temp\\secedit-processed.inf',inffile_content, mode: 'wb:UTF-8') # debug
         @file_object ||= PuppetX::IniFile.new(:content => inffile_content)
       end
     end
