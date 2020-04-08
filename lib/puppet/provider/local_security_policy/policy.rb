@@ -54,13 +54,13 @@ Puppet::Type.type(:local_security_policy).provide(:policy) do
       File.open inffile, 'rb:UTF-16LE' do |file|
         
         # encode as UTF-8 and remove the BOM
-        inffile_content = file.read.encode('utf-8').gsub("\xEF\xBB\xBF", '')
+        temp_content = file.read.encode('utf-8').gsub("\xEF\xBB\xBF", '')
         # the =7 is the registry type for multiline strings.  all the culprit strings we've found are wrapped in
         # single quotes from secedit for some reason. Need to remove those quotes and wrap the entire value (including leading 7)
         # in double quotes
         multistr_regex = Regexp.new('=7,\'(.*?)\'(\r\n)', Regexp::MULTILINE)
-        inffile_content.gsub(multistr_regex, '="7,\1"\2')
-        inffile_content.encode('utf-8', :universal_newline => true)
+        inffile_content = temp_content.gsub(multistr_regex, '="7,\1"\2')
+        #inffile_content.encode('utf-8', :universal_newline => true)
         
         File.write('c:\\windows\\temp\\secedit-processed.inf',inffile_content) # debug
         @file_object ||= PuppetX::IniFile.new(:content => inffile_content)
